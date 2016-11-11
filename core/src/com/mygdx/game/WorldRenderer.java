@@ -30,6 +30,8 @@ public class WorldRenderer {
 	private Texture shooterImg;
 	private Texture shooterLeftImg;
 	private Texture wheelerImg;
+	private Texture flyImg;
+	private Texture flyLeftImg;
 	private Texture cannonImg;
 	private Texture cannonLeftImg;
 	private MetalMan metalman;
@@ -37,6 +39,7 @@ public class WorldRenderer {
 	private ArrayList<EnemyBullet> enemybullet;
 	private ArrayList<ShooterEnemy> shooterenemy;
 	private ArrayList<WheelerEnemy> wheelerenemy;
+	private ArrayList<FlyEnemy> flyenemy;
 	private ArrayList<Cannon> cannon;
 	private ArrayList<HealthPack> healthpack;
 	private static final int        FRAME_COLS = 4;         // #1
@@ -64,6 +67,7 @@ public class WorldRenderer {
 		bullet = world.getBullet();
 		shooterenemy = world.getShooterEnemy();
 		wheelerenemy = world.getWheelerEnemy();
+		flyenemy = world.getFlyEnemy();
 		cannon = world.getCannon();
 		enemybullet = world.getEnemyBullet();
         stillImg = new Texture("still.png");
@@ -79,6 +83,8 @@ public class WorldRenderer {
         shooterImg = new Texture("shooter.png");
         shooterLeftImg = new Texture("shooterLeft.png");
         wheelerImg = new Texture("wheeler.png");
+        flyImg = new Texture("fly.png");
+        flyLeftImg = new Texture("flyLeft.png");
         cannonImg = new Texture("cannon.png");
         cannonLeftImg = new Texture("cannonLeft.png");
         background = new Texture("background.png");
@@ -107,6 +113,13 @@ public class WorldRenderer {
 	
 	public void render(float delta) {
     	SpriteBatch batch = metalmangame.batch;
+    	renderMetalMan();
+    	renderEnemy();
+    	renderBullet();
+        renderHealthPack();
+    }
+	
+	public void renderMetalMan() {
         Vector2 pos = metalman.getPosition();
         if(metalman.Direction == MetalMan.DIRECTION_STILL) {
     		batch.begin();
@@ -136,8 +149,8 @@ public class WorldRenderer {
     	    Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);                        // #14
             stateTime += Gdx.graphics.getDeltaTime();           // #15
             currentFrame = walkAnimation.getKeyFrame(stateTime, true);  // #16
-            batch.begin();
-            batch.draw(background, 0, 0);
+    		batch.begin();
+    		batch.draw(background, 0, 0);
             stageRenderer.render();
     		if(metalman.isJUMP == 1 || metalman.isFALL == 1) {
     			if(metalman.Face == MetalMan.FACERIGHT) {
@@ -158,9 +171,9 @@ public class WorldRenderer {
     		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);                        // #14
             stateTime += Gdx.graphics.getDeltaTime();           // #15
             currentFrame = walkAnimation2.getKeyFrame(stateTime, true);  // #16
-            batch.begin(); 
-            batch.draw(background, 0, 0);
-            stageRenderer.render();
+    		batch.begin();
+    		batch.draw(background, 0, 0);
+            stageRenderer.render(); 
     		if(metalman.isJUMP == 1 || metalman.isFALL == 1) {
     			if(metalman.Face == MetalMan.FACERIGHT) {
     				batch.draw(jumpImg, pos.x, pos.y); 
@@ -176,15 +189,12 @@ public class WorldRenderer {
             batch.end();
             defaultImg = new Texture("stillLeft.png");
     	}
-        for(Bullet b : bullet) {
-        	batch.begin();
-	        Vector2 posb =b.getPosition();
-	        batch.draw(bull, posb.x, posb.y);
-	        batch.end();
-        }
+	}
+	
+	public void renderEnemy() {
         for(ShooterEnemy s : shooterenemy) {
         	batch.begin();
-	        Vector2 poss =s.getPosition();
+	        Vector2 poss = s.getPosition();
 	        if(s.Face == ShooterEnemy.FACERIGHT) {
 	        	batch.draw(shooterImg, poss.x, poss.y);
 	        }
@@ -195,14 +205,24 @@ public class WorldRenderer {
         }
         for(WheelerEnemy w : wheelerenemy) {
         	batch.begin();
-	        Vector2 posw =w.getPosition();
+	        Vector2 posw = w.getPosition();
 	        batch.draw(wheelerImg, posw.x, posw.y);
 	        batch.end();
         }
-        
+        for(FlyEnemy f : flyenemy) {
+        	batch.begin();
+	        Vector2 poss = f.getPosition();
+	        if(f.Face == FlyEnemy.FACERIGHT) {
+	        	batch.draw(flyImg, poss.x, poss.y);
+	        }
+	        else if(f.Face == FlyEnemy.FACELEFT) {
+	        	batch.draw(flyLeftImg, poss.x, poss.y);
+	        }
+	        batch.end();
+        }
         for(Cannon c : cannon) {
         	batch.begin();
-	        Vector2 posc =c.getPosition();
+	        Vector2 posc = c.getPosition();
 	        if(c.Face == Cannon.FACERIGHT) {
 	        	batch.draw(cannonImg, posc.x, posc.y);
 	        }
@@ -211,10 +231,18 @@ public class WorldRenderer {
 	        }
 	        batch.end();
         }
-        
-        for(EnemyBullet b : enemybullet) {
+	}
+	
+	public void renderBullet() {
+        for(Bullet b : bullet) {
         	batch.begin();
 	        Vector2 posb =b.getPosition();
+	        batch.draw(bull, posb.x, posb.y);
+	        batch.end();
+        }
+        for(EnemyBullet b : enemybullet) {
+        	batch.begin();
+	        Vector2 posb = b.getPosition();
 	        if(b.bigbullet) {
 	        	if(b.Face == EnemyBullet.FACERIGHT) {
 	        		batch.draw(bigebull, posb.x, posb.y);
@@ -228,12 +256,14 @@ public class WorldRenderer {
 	        }
 	        batch.end();
         }
-        
+	}
+	
+	public void renderHealthPack() {
         for(HealthPack h : healthpack) {
         	batch.begin();
-	        Vector2 posh =h.getPosition();
+	        Vector2 posh = h.getPosition();
 	        batch.draw(healthpackImg, posh.x, posh.y);
 	        batch.end();
         }
-    }
+	}
 }

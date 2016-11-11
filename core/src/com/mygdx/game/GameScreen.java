@@ -3,6 +3,7 @@ package com.mygdx.game;
 import java.util.ArrayList;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Game;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.graphics.GL20;
@@ -42,6 +43,7 @@ public class GameScreen extends ScreenAdapter{
     	checkJumpTime();
     	checkOnStage();
     	updateMetalMan();
+    	checkGameOver();
         world.update(delta);
     }
     
@@ -56,6 +58,13 @@ public class GameScreen extends ScreenAdapter{
     	if(checkjump == true && TimeUtils.millis() - jumpstart > 350) {
     		metalman.isJUMP = 0;
     		metalman.isFALL = 1; 
+    	}
+    }
+    
+    private void checkGameOver() {
+    	metalman = world.getMetalMan();
+    	if(metalman.HP == 0) {
+    		metalmangame.setScreen(new GameOverScreen(metalmangame));
     	}
     }
     

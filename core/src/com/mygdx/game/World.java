@@ -16,6 +16,7 @@ public class World {
 	private ArrayList<Bullet> bullet;
 	private ArrayList<ShooterEnemy> shooterenemy;
 	private ArrayList<WheelerEnemy> wheelerenemy;
+	private ArrayList<FlyEnemy> flyenemy;
 	private ArrayList<Cannon> cannon;
 	public int countBullet = 0;
 	private int countdeadenemy = 0;
@@ -27,6 +28,8 @@ public class World {
 	private boolean wave4 = false;
 	private boolean wave5 = false;
 	private boolean wave6 = false;
+	private boolean wave7 = false;
+	private boolean wave8 = false;
 	private float healthpackposx = 0;
 	private float healthpackposy = 0;
 	
@@ -39,6 +42,7 @@ public class World {
 		enemybullet = new ArrayList<EnemyBullet>();
 		shooterenemy = new ArrayList<ShooterEnemy>();
 		wheelerenemy = new ArrayList<WheelerEnemy>();
+		flyenemy = new ArrayList<FlyEnemy>();
 		cannon = new ArrayList<Cannon>();
 		shooterenemy.add(new ShooterEnemy(700, 100, ShooterEnemy.FACELEFT, enemybullet));
 		shooterenemy.add(new ShooterEnemy(30, 300, ShooterEnemy.FACERIGHT, enemybullet));
@@ -68,6 +72,10 @@ public class World {
 		return wheelerenemy;
 	}
 	
+	ArrayList<FlyEnemy> getFlyEnemy() {
+		return flyenemy;
+	}
+	
 	ArrayList<Cannon> getCannon() {
 		return cannon;
 	}
@@ -91,12 +99,16 @@ public class World {
 	       for(WheelerEnemy w:wheelerenemy) {
 	    	   w.update();
 	       }
+	       for(FlyEnemy f:flyenemy) {
+	    	   f.update();
+	       }
 	       for(Cannon c:cannon) {
 	    	   c.update();
 	       }
 	       ArrayList<Bullet> Removebullet = new ArrayList<Bullet>();
 	       ArrayList<ShooterEnemy> removeshooter = new ArrayList<ShooterEnemy>();
 	       ArrayList<WheelerEnemy> removewheeler = new ArrayList<WheelerEnemy>();
+	       ArrayList<FlyEnemy> removefly = new ArrayList<FlyEnemy>();
 	       ArrayList<Cannon> removecannon = new ArrayList<Cannon>();
 	       for(Bullet b:bullet) {
 	    	   b.update();
@@ -126,6 +138,19 @@ public class World {
 	    			   }
 	    		   }
 	    	   }
+	    	   for(FlyEnemy f:flyenemy) {
+	    		   if(b.getPosition().x > f.getPosition().x && b.getPosition().x < f.getPosition().x + 80 &&
+	    		      b.getPosition().y >= f.getPosition().y && b.getPosition().y <= f.getPosition().y + 40) {
+	    			   Removebullet.add(b);
+	    			   f.getDamage(20);
+	    			   if(f.HP == 0) {
+	    				   removefly.add(f);
+	    				   healthpackposx = f.getPosition().x;
+	    				   healthpackposy = f.getPosition().y - 40;
+	    				   countdeadenemy++;
+	    			   }
+	    		   }
+	    	   }
 	    	   for(Cannon c:cannon) {
 	    		   if(b.getPosition().x > c.getPosition().x && b.getPosition().x < c.getPosition().x + 100 &&
 	    		      b.getPosition().y > c.getPosition().y && b.getPosition().y < c.getPosition().y + 60) {
@@ -146,6 +171,7 @@ public class World {
 	       bullet.removeAll(Removebullet);
 	       shooterenemy.removeAll(removeshooter);
 	       wheelerenemy.removeAll(removewheeler);
+	       flyenemy.removeAll(removefly);
 	       cannon.removeAll(removecannon);
 	}
 	
@@ -171,6 +197,16 @@ public class World {
 	    		   delayHit();
 	    		   if(checkhitdelay == true && TimeUtils.millis() - hittimer > 1000) {
 	    			   metalman.getDamage(10);
+	    			   checkhitdelay = false;
+	    		   }
+	    	   }
+	       }
+	       for(FlyEnemy f:flyenemy) {
+	    	   if(f.getPosition().x > metalman.getPosition().x - 80 && f.getPosition().x < metalman.getPosition().x + 80 &&
+	    		  f.getPosition().y > metalman.getPosition().y && f.getPosition().y < metalman.getPosition().y + 100) {
+	    		   delayHit();
+	    		   if(checkhitdelay == true && TimeUtils.millis() - hittimer > 1000) {
+	    			   metalman.getDamage(15);
 	    			   checkhitdelay = false;
 	    		   }
 	    	   }
@@ -213,7 +249,22 @@ public class World {
     	}
     	else if(countdeadenemy == 12 && wave6 == false) {
     		healthpack.add(new HealthPack(healthpackposx + 50, healthpackposy));
+    		flyenemy.add(new FlyEnemy(720, 140, FlyEnemy.FACELEFT));
+    		flyenemy.add(new FlyEnemy(0, 540, FlyEnemy.FACERIGHT));
+    		cannon.add(new Cannon(50, 300, Cannon.FACERIGHT, enemybullet));
     		wave6 = true;
+    	}
+    	else if(countdeadenemy == 15 && wave7 == false) {
+    		healthpack.add(new HealthPack(healthpackposx + 50, healthpackposy));
+    		flyenemy.add(new FlyEnemy(0, 340, FlyEnemy.FACERIGHT));
+    		shooterenemy.add(new ShooterEnemy(700, 100, ShooterEnemy.FACELEFT, enemybullet));
+    		cannon.add(new Cannon(300, 500, Cannon.FACELEFT, enemybullet));
+    		cannon.add(new Cannon(400, 500, Cannon.FACERIGHT, enemybullet));
+    		wave7 = true;
+    	}
+    	else if(countdeadenemy == 19 && wave8 == false) {
+    		healthpack.add(new HealthPack(healthpackposx + 50, healthpackposy));
+    		wave8 = true;
     	}
     }
     
